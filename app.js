@@ -1,13 +1,12 @@
 // 後端 API 組態設定
 // 使用 corsproxy.io 代理轉接，解決跨網域 (CORS) 限制
 const PROXY = 'https://corsproxy.io/?';
+// 改用相容性更高的 corsproxy 設定
 const HCM_BASE = 'https://tw-hcm.usiglobal.com/servlet/jform';
 
 const CONFIG = {
-    // 登入驗證 API
-    LOGIN_URL: `${PROXY}${encodeURIComponent(HCM_BASE + '?file=hrm8w.pkg,hrm8w_usi.pkg&locale=TW&init_func=B3.8')}`,
-    // 打卡 API
-    CLOCK_URL: `${PROXY}${encodeURIComponent(HCM_BASE)}`
+    LOGIN_URL: `https://corsproxy.io/?${encodeURIComponent(HCM_BASE + '?file=hrm8w.pkg,hrm8w_usi.pkg&locale=TW&init_func=B3.8')}`,
+    CLOCK_URL: `https://corsproxy.io/?${encodeURIComponent(HCM_BASE)}`
 };
 
 // 全域狀態儲存
