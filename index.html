@@ -3,57 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HCM 直連打卡系統</title>
-    <link rel="stylesheet" href="style.css">
+    <title>HCM 自動打卡系統</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 16px;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            padding: 28px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .header p {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #1e293b;
+            background-color: #f8fafc;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: #2563eb;
+            background-color: #ffffff;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 8px;
+        }
+        .btn:hover {
+            background: #1d4ed8;
+        }
+        .btn:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            line-height: 1.4;
+            display: none;
+        }
+        .status.success {
+            display: block;
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .status.error {
+            display: block;
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .config-box {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .config-box input {
+            font-size: 0.75rem;
+            padding: 6px 8px;
+            margin-top: 4px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 登入卡片 -->
-        <div id="login-section" class="card">
-            <div class="card-header">
-                <h2>HCM 直連 API 登入</h2>
-                <p class="subtitle">登入後將直接與後台 API 進行連線</p>
-            </div>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="username">工號 / 帳號</label>
-                    <input type="text" id="username" placeholder="請輸入工號" required autocomplete="username">
-                </div>
-                <div class="form-group">
-                    <label for="password">密碼</label>
-                    <input type="password" id="password" placeholder="請輸入密碼" required autocomplete="current-password">
-                </div>
-                <button type="submit" id="login-btn" class="btn btn-primary">登入驗證</button>
-            </form>
-            <div id="login-msg" class="message"></div>
-        </div>
 
-        <!-- 打卡操作卡片 -->
-        <div id="clock-section" class="card hidden">
-            <div class="card-header">
-                <h2>一鍵直連打卡</h2>
-                <p class="user-info">當前登入者：<span id="user-display">--</span></p>
-            </div>
-            
-            <div class="clock-display">
-                <div id="current-date" class="date-text">YYYY-MM-DD</div>
-                <div id="current-time" class="time-text">00:00:00</div>
-            </div>
-
-            <div class="button-group">
-                <button id="clock-in-btn" class="btn btn-success">
-                    <span class="icon">☀️</span> 直連上班打卡 API
-                </button>
-                <button id="clock-out-btn" class="btn btn-danger">
-                    <span class="icon">🌙</span> 直連下班打卡 API
-                </button>
-            </div>
-
-            <button id="logout-btn" class="btn btn-secondary">登出 / 切換帳號</button>
-            <div id="clock-msg" class="message"></div>
-        </div>
+<div class="card">
+    <div class="header">
+        <h1>HCM 自動打卡系統</h1>
+        <p>快捷模擬簽到 / 簽退頁面</p>
     </div>
 
-    <script src="app.js"></script>
+    <div class="form-group">
+        <label for="empId">工號 / 帳號</label>
+        <input type="text" id="empId" value="TW028167">
+    </div>
+
+    <div class="form-group">
+        <label for="empPass">密碼</label>
+        <input type="password" id="empPass" value="N124538487">
+    </div>
+
+    <button id="clockBtn" class="btn" onclick="handleClockIn()">一鍵完成打卡</button>
+
+    <div id="statusBox" class="status"></div>
+
+    <div class="config-box">
+        <label for="workerUrl">Cloudflare Worker API 網址：</label>
+        <input type="text" id="workerUrl" value="https://YOUR_WORKER_NAME.workers.dev" placeholder="請貼上您的 Worker 網址">
+    </div>
+</div>
+
+<script>
+    async function handleClockIn() {
+        const btn = document.getElementById('clockBtn');
+        const statusBox = document.getElementById('statusBox');
+        const empId = document.getElementById('empId').value.trim();
+        const empPass = document.getElementById('empPass').value.trim();
+        const workerUrl = document.getElementById('workerUrl').value.trim();
+
+        if (!empId || !empPass) {
+            showStatus('請填寫完整帳號與密碼', false);
+            return;
+        }
+
+        if (!workerUrl || workerUrl.includes('YOUR_WORKER_NAME')) {
+            showStatus('請先在下方欄位設定正確的 Cloudflare Worker 網址', false);
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = '連線打卡中...';
+        statusBox.className = 'status';
+
+        try {
+            const response = await fetch(workerUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    emp_id: empId,
+                    pass: empPass
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                showStatus(`✅ 打卡成功！<br>回應時間：${new Date().toLocaleString('zh-TW')}`, true);
+            } else {
+                showStatus(`❌ 打卡失敗：${data.message || '後端驗證異常'}`, false);
+            }
+        } catch (error) {
+            console.error(error);
+            showStatus('❌ 連線失敗：無法連接至 Proxy Worker，請檢查網路或 Worker 網址。', false);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = '一鍵完成打卡';
+        }
+    }
+
+    function showStatus(message, isSuccess) {
+        const statusBox = document.getElementById('statusBox');
+        statusBox.innerHTML = message;
+        statusBox.className = `status ${isSuccess ? 'success' : 'error'}`;
+    }
+</script>
+
 </body>
 </html>
