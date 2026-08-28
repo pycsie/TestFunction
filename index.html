@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HCM 直連打卡系統</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 登入卡片 -->
+        <div id="login-section" class="card">
+            <div class="card-header">
+                <h2>HCM 直連 API 登入</h2>
+                <p class="subtitle">登入後將直接與後台 API 進行連線</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">工號 / 帳號</label>
+                    <input type="text" id="username" placeholder="請輸入工號" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">密碼</label>
+                    <input type="password" id="password" placeholder="請輸入密碼" required autocomplete="current-password">
+                </div>
+                <button type="submit" id="login-btn" class="btn btn-primary">登入驗證</button>
+            </form>
+            <div id="login-msg" class="message"></div>
+        </div>
+
+        <!-- 打卡操作卡片 -->
+        <div id="clock-section" class="card hidden">
+            <div class="card-header">
+                <h2>一鍵直連打卡</h2>
+                <p class="user-info">當前登入者：<span id="user-display">--</span></p>
+            </div>
+            
+            <div class="clock-display">
+                <div id="current-date" class="date-text">YYYY-MM-DD</div>
+                <div id="current-time" class="time-text">00:00:00</div>
+            </div>
+
+            <div class="button-group">
+                <button id="clock-in-btn" class="btn btn-success">
+                    <span class="icon">☀️</span> 直連上班打卡 API
+                </button>
+                <button id="clock-out-btn" class="btn btn-danger">
+                    <span class="icon">🌙</span> 直連下班打卡 API
+                </button>
+            </div>
+
+            <button id="logout-btn" class="btn btn-secondary">登出 / 切換帳號</button>
+            <div id="clock-msg" class="message"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
