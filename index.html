@@ -3,206 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HCM 自動打卡系統</title>
+    <title>HCM 快速打卡系統</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: #f1f5f9;
-            color: #0f172a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 16px;
-        }
-        .card {
-            background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-            padding: 28px;
-            width: 100%;
-            max-width: 400px;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        .header h1 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #1e293b;
-        }
-        .header p {
-            font-size: 0.85rem;
-            color: #64748b;
-            margin-top: 4px;
-        }
-        .form-group {
-            margin-bottom: 16px;
-        }
-        label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #334155;
-            margin-bottom: 6px;
-        }
-        input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            color: #1e293b;
-            background-color: #f8fafc;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        input:focus {
-            border-color: #2563eb;
-            background-color: #ffffff;
-        }
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background: #2563eb;
-            color: #ffffff;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 8px;
-        }
-        .btn:hover {
-            background: #1d4ed8;
-        }
-        .btn:disabled {
-            background: #94a3b8;
-            cursor: not-allowed;
-        }
-        .status {
-            margin-top: 16px;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            line-height: 1.4;
-            display: none;
-        }
-        .status.success {
-            display: block;
-            background-color: #dcfce7;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-        }
-        .status.error {
-            display: block;
-            background-color: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-        .config-box {
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid #e2e8f0;
-            font-size: 0.75rem;
-            color: #64748b;
-        }
-        .config-box input {
-            font-size: 0.75rem;
-            padding: 6px 8px;
-            margin-top: 4px;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f1f5f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: #fff; border-radius: 12px; padding: 24px; width: 100%; max-width: 380px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 14px; }
+        label { font-size: 0.85rem; font-weight: bold; color: #334155; }
+        input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; margin-top: 4px; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 8px; }
+        .btn-verify { background: #0284c7; color: white; }
+        .btn-clock { background: #16a34a; color: white; }
+        .btn:disabled { background: #94a3b8; cursor: not-allowed; }
+        .status { margin-top: 14px; padding: 10px; border-radius: 6px; font-size: 0.85rem; display: none; }
+        .success { display: block; background: #dcfce7; color: #15803d; }
+        .error { display: block; background: #fee2e2; color: #b91c1c; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <div class="header">
-        <h1>HCM 自動打卡系統</h1>
-        <p>快捷模擬簽到 / 簽退頁面</p>
-    </div>
-
+    <h2>HCM 打卡系統</h2>
     <div class="form-group">
-        <label for="empId">工號 / 帳號</label>
+        <label>工號 / 帳號</label>
         <input type="text" id="empId" value="TW028167">
     </div>
-
     <div class="form-group">
-        <label for="empPass">密碼</label>
+        <label>密碼</label>
         <input type="password" id="empPass" value="N124538487">
     </div>
 
-    <button id="clockBtn" class="btn" onclick="handleClockIn()">一鍵完成打卡</button>
+    <!-- 階段 1：驗證按鈕 -->
+    <button id="verifyBtn" class="btn btn-verify" onclick="handleVerify()">1. 驗證帳密</button>
+    
+    <!-- 階段 2：打卡按鈕（預設停用） -->
+    <button id="clockBtn" class="btn btn-clock" onclick="handleClock()" disabled>2. 執行真實打卡</button>
 
     <div id="statusBox" class="status"></div>
 
-    <div class="config-box">
-        <label for="workerUrl">Cloudflare Worker API 網址：</label>
-        <input type="text" id="workerUrl" value="https://tight-tooth-aa3e.qwe90723.workers.dev" placeholder="請貼上您的 Worker 網址">
+    <div style="margin-top: 15px;">
+        <label style="font-size: 0.75rem;">Cloudflare Worker API 網址：</label>
+        <input type="text" id="workerUrl" value="https://tight-tooth-aa3e.qwe90723.workers.dev" style="font-size: 0.75rem;">
     </div>
 </div>
 
 <script>
-    async function handleClockIn() {
-        const btn = document.getElementById('clockBtn');
-        const statusBox = document.getElementById('statusBox');
+    async function handleVerify() {
+        const workerUrl = document.getElementById('workerUrl').value.trim();
         const empId = document.getElementById('empId').value.trim();
         const empPass = document.getElementById('empPass').value.trim();
-        const workerUrl = document.getElementById('workerUrl').value.trim();
 
-        if (!empId || !empPass) {
-            showStatus('請填寫完整帳號與密碼', false);
-            return;
-        }
-
-        if (!workerUrl || workerUrl.includes('YOUR_WORKER_NAME')) {
-            showStatus('請先在下方欄位設定正確的 Cloudflare Worker 網址', false);
-            return;
-        }
-
-        btn.disabled = true;
-        btn.innerText = '連線打卡中...';
-        statusBox.className = 'status';
+        showStatus('正在向 HCM 驗證帳密...', true);
 
         try {
-            const response = await fetch(workerUrl, {
+            const res = await fetch(workerUrl, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    emp_id: empId,
-                    pass: empPass
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'verify', emp_id: empId, pass: empPass })
             });
+            const data = await res.json();
 
-            const data = await response.json();
-
-            if (response.ok && data.success) {
-                showStatus(`✅ 打卡成功！<br>回應時間：${new Date().toLocaleString('zh-TW')}`, true);
+            if (res.ok && data.success) {
+                showStatus('✅ 帳號密碼驗證成功！請點擊下方「2. 執行真實打卡」。', true);
+                document.getElementById('clockBtn').disabled = false; // 啟用打卡按鈕
             } else {
-                showStatus(`❌ 打卡失敗：${data.message || '後端驗證異常'}`, false);
+                showStatus('❌ ' + (data.message || '帳密驗證失敗'), false);
+                document.getElementById('clockBtn').disabled = true;
             }
-        } catch (error) {
-            console.error(error);
-            showStatus('❌ 連線失敗：無法連接至 Proxy Worker，請檢查網路或 Worker 網址。', false);
-        } finally {
-            btn.disabled = false;
-            btn.innerText = '一鍵完成打卡';
+        } catch (e) {
+            showStatus('❌ 連線異常：' + e.message, false);
         }
     }
 
-    function showStatus(message, isSuccess) {
-        const statusBox = document.getElementById('statusBox');
-        statusBox.innerHTML = message;
-        statusBox.className = `status ${isSuccess ? 'success' : 'error'}`;
+    async function handleClock() {
+        const workerUrl = document.getElementById('workerUrl').value.trim();
+        const empId = document.getElementById('empId').value.trim();
+        const empPass = document.getElementById('empPass').value.trim();
+
+        showStatus('發送打卡請求中...', true);
+
+        try {
+            const res = await fetch(workerUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'clock', emp_id: empId, pass: empPass })
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                showStatus('✅ 打卡請求已順利完成！', true);
+            } else {
+                showStatus('❌ 打卡失敗：' + data.message, false);
+            }
+        } catch (e) {
+            showStatus('❌ 連線異常：' + e.message, false);
+        }
+    }
+
+    function showStatus(msg, isSuccess) {
+        const box = document.getElementById('statusBox');
+        box.innerText = msg;
+        box.className = `status ${isSuccess ? 'success' : 'error'}`;
     }
 </script>
 
