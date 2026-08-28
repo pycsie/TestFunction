@@ -1,11 +1,13 @@
 // 後端 API 組態設定
+// 使用 corsproxy.io 代理轉接，解決跨網域 (CORS) 限制
+const PROXY = 'https://corsproxy.io/?';
+const HCM_BASE = 'https://tw-hcm.usiglobal.com/servlet/jform';
+
 const CONFIG = {
-    // HCM 系統基底網址
-    BASE_URL: 'https://tw-hcm.usiglobal.com/servlet/jform',
     // 登入驗證 API
-    LOGIN_PARAMS: '?file=hrm8w.pkg,hrm8w_usi.pkg&locale=TW&init_func=B3.8',
-    // 直連打卡 API 端點（可依實際後端封包改寫）
-    CLOCK_ENDPOINT: '/servlet/jform'
+    LOGIN_URL: `${PROXY}${encodeURIComponent(HCM_BASE + '?file=hrm8w.pkg,hrm8w_usi.pkg&locale=TW&init_func=B3.8')}`,
+    // 打卡 API
+    CLOCK_URL: `${PROXY}${encodeURIComponent(HCM_BASE)}`
 };
 
 // 全域狀態儲存
@@ -23,7 +25,7 @@ const loginMsg = document.getElementById('login-msg');
 const clockMsg = document.getElementById('clock-msg');
 const userDisplay = document.getElementById('user-display');
 
-// 更新時鐘
+// 即時時鐘更新
 function updateClock() {
     const now = new Date();
     document.getElementById('current-date').innerText = now.toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' });
@@ -32,18 +34,17 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-// 1. 直連登入 API
+// 1. 直連登入 API (經 Proxy 轉發)
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
 
     loginMsg.className = 'message info';
-    loginMsg.innerText = '正在直連後台 API 進行驗證...';
+    loginMsg.innerText = '正在透過 Proxy 連線後台 API 進行驗證...';
 
     try {
-        // 發送真實 HTTP POST 至 HCM 後台登入端點
-        const response = await fetch(`${CONFIG.BASE_URL}${CONFIG.LOGIN_PARAMS}`, {
+        const response = await fetch(CONFIG.LOGIN_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -55,31 +56,31 @@ loginForm.addEventListener('submit', async (e) => {
             })
         });
 
-        // 儲存 session 資訊
-        sessionData.username = username;
-        sessionData.isLoggedIn = true;
+        if (response.ok) {
+            sessionData.username = username;
+            sessionData.isLoggedIn = true;
 
-        // 切換介面至直接打卡頁面
-        userDisplay.innerText = username;
-        loginSection.classList.add('hidden');
-        clockSection.classList.remove('hidden');
-        loginMsg.innerText = '';
-
+            userDisplay.innerText = username;
+            loginSection.classList.add('hidden');
+            clockSection.classList.remove('hidden');
+            loginMsg.innerText = '';
+        } else {
+            loginMsg.className = 'message error';
+            loginMsg.innerText = `登入請求失敗 (HTTP ${response.status})`;
+        }
     } catch (err) {
         console.error('Login Fetch Error:', err);
-        // 注意：跨網域 (CORS) 存取可能在瀏覽器觸發 error，但請求仍可能送出
         loginMsg.className = 'message error';
-        loginMsg.innerText = '連線失敗或存在 CORS 跨網域限制。請確認後端 API 允許跨網域存取。';
+        loginMsg.innerText = `連線錯誤：${err.message}`;
     }
 });
 
-// 2. 按鈕直接呼叫後台打卡 API (不跳轉/不透過原畫面UI)
+// 2. 直連打卡 API (經 Proxy 轉發)
 async function triggerDirectClockAPI(type) {
     const typeText = type === 'IN' ? '上班' : '下班';
     clockMsg.className = 'message info';
-    clockMsg.innerText = `正在直接呼叫後台 ${typeText} 打卡 API...`;
+    clockMsg.innerText = `正在呼叫後台 ${typeText} 打卡 API...`;
 
-    // 依據原本封包結構構建參數
     const payload = new URLSearchParams({
         'func_id': 'B3.8',
         'action': 'CLOCK',
@@ -89,8 +90,7 @@ async function triggerDirectClockAPI(type) {
     });
 
     try {
-        // 直接發送 API 請求給後台伺服器
-        const response = await fetch(`${CONFIG.BASE_URL}${CONFIG.CLOCK_ENDPOINT}`, {
+        const response = await fetch(CONFIG.CLOCK_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -107,9 +107,9 @@ async function triggerDirectClockAPI(type) {
             clockMsg.innerText = `❌ 後台 API 回應異常 (HTTP ${response.status})`;
         }
     } catch (err) {
-        console.error('Clock API Error:', err.message);
+        console.error('Clock API Error:', err);
         clockMsg.className = 'message error';
-        clockMsg.innerText = `⚠️ 請求發送完畢（若有 CORS 限制屬正常現象）：${err.message}`;
+        clockMsg.innerText = `⚠️ 請求失敗：${err.message}`;
     }
 }
 
